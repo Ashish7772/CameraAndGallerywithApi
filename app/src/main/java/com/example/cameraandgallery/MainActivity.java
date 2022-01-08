@@ -20,12 +20,15 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.Callable;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.http.Url;
 
 public class MainActivity extends AppCompatActivity {
     public static final int CAMERA_REQUEST_CODE = 102;
@@ -116,9 +119,13 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (requestCode == PICK_IMAGE && resultCode == RESULT_OK){
             imageUri = data.getData();
+          //  Toast.makeText(MainActivity.this, ""+imageUri, Toast.LENGTH_SHORT).show();
+
+
+             Toast.makeText(MainActivity.this, imageUri.getPath(), Toast.LENGTH_LONG).show();
             try {
+
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
-                Toast.makeText(MainActivity.this, bitmap.toString(), Toast.LENGTH_SHORT).show();
                 selectedImage.setImageBitmap(bitmap);
             }catch (IOException e){
                 e.printStackTrace();
@@ -129,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     private String imageToString()
     {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG,75,byteArrayOutputStream);
         byte[] imgByte = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(imgByte,Base64.DEFAULT);
     }
@@ -137,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     private  void  uploadImage()
     {
         String Image = imageToString();
-        String json = "";
+        String json = "aaa";
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
         Call<ImageClass> call =  apiInterface.uploadImage(json,Image);
 
@@ -145,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ImageClass> call, Response<ImageClass> response) {
                 ImageClass imageClass = response.body();
-                Toast.makeText(MainActivity.this, "Server Response: "+imageClass.getResponse(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Server Response: "+response.body().getMessage(), Toast.LENGTH_SHORT).show();
 
             }
 

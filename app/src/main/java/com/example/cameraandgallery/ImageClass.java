@@ -4,16 +4,27 @@ import com.google.gson.annotations.SerializedName;
 
 public class ImageClass {
 
-    @SerializedName("json")
-    private String Json;
 
-    @SerializedName("file")
-    private String File;
 
-    @SerializedName("response")
-    private  String Response;
+    @SerializedName("message")
+    private String message;
 
-    public String getResponse(){
-        return Response;
+    @SerializedName("success")
+    private  String success;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(String success) {
+        this.success = success;
     }
 }
