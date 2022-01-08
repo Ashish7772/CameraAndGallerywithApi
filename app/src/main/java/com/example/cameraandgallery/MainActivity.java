@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +26,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_CODE = 101;
     private  Bitmap bitmap;
     Uri imageUri;
+    File file;
+    String file2;
 
     String json = "";
     @Override
@@ -68,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                imageToString();
                 uploadImage();
             }
         });
@@ -119,12 +124,10 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (requestCode == PICK_IMAGE && resultCode == RESULT_OK){
             imageUri = data.getData();
-          //  Toast.makeText(MainActivity.this, ""+imageUri, Toast.LENGTH_SHORT).show();
+            file2 = data.getData().getPath();
 
-
-             Toast.makeText(MainActivity.this, imageUri.getPath(), Toast.LENGTH_LONG).show();
+            //Toast.makeText(MainActivity.this, ""+file2, Toast.LENGTH_LONG).show();
             try {
-
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),imageUri);
                 selectedImage.setImageBitmap(bitmap);
             }catch (IOException e){
@@ -133,26 +136,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String imageToString()
-    {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,75,byteArrayOutputStream);
-        byte[] imgByte = byteArrayOutputStream.toByteArray();
-        return Base64.encodeToString(imgByte,Base64.DEFAULT);
-    }
+
 
     private  void  uploadImage()
     {
-        String Image = imageToString();
-        String json = "aaa";
+       File file = new File(file2);
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"),file);
+        MultipartBody.Part parts = MultipartBody.Part.createFormData("newimage",file.getName(),requestBody);
+        RequestBody name = RequestBody.create(MediaType.parse("text/plain"),"This is new Image");
+
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-        Call<ImageClass> call =  apiInterface.uploadImage(json,Image);
+        Call<ImageClass> call =  apiInterface.uploadImage(parts,name);
 
         call.enqueue(new Callback<ImageClass>() {
             @Override
             public void onResponse(Call<ImageClass> call, Response<ImageClass> response) {
                 ImageClass imageClass = response.body();
-                Toast.makeText(MainActivity.this, "Server Response: "+response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Server Response: "+response.body().getSuccess(), Toast.LENGTH_SHORT).show();
 
             }
 

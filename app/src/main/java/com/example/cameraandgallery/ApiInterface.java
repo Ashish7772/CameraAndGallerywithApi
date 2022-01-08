@@ -11,14 +11,10 @@ import retrofit2.http.Part;
 
 public interface ApiInterface {
 
-    @FormUrlEncoded
+    @Multipart
     @POST("VnUploadFile")
-    Call<ImageClass> uploadImage(@Field("json") String json , @Field("file") String file);
-
-//    @Multipart
-//    @POST("VnUploadFile")
-//            Call<ImageClass> uploadImage(
-//            @Part MultipartBody.Part image,
-//            @Part("name") RequestBody requestBody
-//    );
+            Call<ImageClass> uploadImage(
+            @Part MultipartBody.Part file,
+            @Part("name") RequestBody requestBody
+    );
 }
